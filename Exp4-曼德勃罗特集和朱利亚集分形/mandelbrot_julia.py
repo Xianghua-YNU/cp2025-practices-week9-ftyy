@@ -34,7 +34,28 @@ def generate_mandelbrot(width=800, height=800, max_iter=100):
     #     Z[mask] = Z[mask]**2 + C[mask]
     
     # TODO: 返回转置后的结果
-    pass
+     # 创建x(-2.0到1.0)和y(-1.5到1.5)的线性空间
+    x = np.linspace(-2.0, 1.0, width)
+    y = np.linspace(-1.5, 1.5, height)
+    
+    # 使用np.meshgrid生成网格
+    X, Y = np.meshgrid(x, y)
+    
+    # 构建复数矩阵C = x + iy
+    C = X + 1j * Y
+    
+    # 初始化记录数组
+    B = np.zeros(C.shape, dtype=int)  # 记录逃逸时间
+    Z = np.zeros(C.shape, dtype=complex)  # 初始值设为0
+    
+    # 迭代计算
+    for j in range(max_iter):
+        mask = np.abs(Z) <= 2  # 判断是否未逃逸
+        Z[mask] = Z[mask]**2 + C[mask]  # 更新Z
+        B[mask] += 1  # 更新逃逸时间
+    
+    # 返回结果
+    return B.T  # 转置以匹配绘图方向
 
 def generate_julia(c, width=800, height=800, max_iter=100):
     """
@@ -66,7 +87,28 @@ def generate_julia(c, width=800, height=800, max_iter=100):
     #     Z[mask] = Z[mask]**2 + c
     
     # TODO: 返回转置后的结果
-    pass
+    # 创建x和y的线性空间(-2.0到2.0)
+    x = np.linspace(-2.0, 2.0, width)
+    y = np.linspace(-2.0, 2.0, height)
+    
+    # 使用np.meshgrid生成网格
+    X, Y = np.meshgrid(x, y)
+    
+    # 构建复数矩阵Z0 = x + iy
+    Z0 = X + 1j * Y
+    
+    # 初始化记录数组
+    B = np.zeros(Z0.shape, dtype=int)  # 记录逃逸时间
+    Z = Z0.copy()  # 初始值为网格点
+    
+    # 迭代计算
+    for j in range(max_iter):
+        mask = np.abs(Z) <= 2  # 判断是否未逃逸
+        Z[mask] = Z[mask]**2 + c  # 更新Z
+        B[mask] += 1  # 更新逃逸时间
+    
+    # 返回结果
+    return B.T  # 转置以匹配绘图方向
 
 def plot_fractal(data, title, filename=None, cmap='magma'):
     """
