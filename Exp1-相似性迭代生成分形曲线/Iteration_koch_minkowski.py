@@ -15,9 +15,8 @@ def koch_generator(u, level):
         # 只添加p1, a, c, b（不加p2，避免重复）
         points.extend([p1, a, c, b])
     # 递归
-    next_points = koch_generator(np.array(points), level - 1)
-    # 递归后补上终点
-    return np.concatenate([next_points, [u[-1]]])
+    next_points = koch_generator(np.array(points + [u[-1]]), level - 1)
+    return next_points
 
 def minkowski_generator(u, level):
     if level == 0:
@@ -39,13 +38,12 @@ def minkowski_generator(u, level):
         ]
         points.extend(pts)
     # 递归
-    next_points = minkowski_generator(np.array(points), level - 1)
-    # 递归后补上终点
-    return np.concatenate([next_points, [u[-1]]])
+    next_points = minkowski_generator(np.array(points + [u[-1]]), level - 1)
+    return next_points
 
 if __name__ == "__main__":
     # 初始线段
-    init_u = np.array([0, 1, 0.5+0.866j, 0])  # 等边三角形
+    init_u = np.array([0, 1])
 
     # 绘制不同层级的科赫曲线
     fig, axs = plt.subplots(2, 2, figsize=(6, 6))
