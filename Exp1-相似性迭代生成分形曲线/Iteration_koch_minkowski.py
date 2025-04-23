@@ -12,11 +12,12 @@ def koch_generator(u, level):
         b = p1 + (p2 - p1) * 2 / 3
         angle = np.pi / 3
         c = a + (b - a) * np.exp(1j * angle)
-        # 只添加p1, a, c, b（不加p2，避免重复），递归后最后再加u[-1]
+        # 只添加p1, a, c, b（不加p2，避免重复）
         points.extend([p1, a, c, b])
     # 递归
-    next_points = koch_generator(np.array(points + [u[-1]]), level - 1)
-    return next_points
+    next_points = koch_generator(np.array(points), level - 1)
+    # 递归后补上终点
+    return np.concatenate([next_points, [u[-1]]])
 
 def minkowski_generator(u, level):
     if level == 0:
@@ -26,7 +27,6 @@ def minkowski_generator(u, level):
         p1 = u[i]
         p2 = u[i + 1]
         v = (p2 - p1) / 4
-        # 8个分段，最后不加p2，递归后最后再加u[-1]
         pts = [
             p1,
             p1 + v,
@@ -39,8 +39,9 @@ def minkowski_generator(u, level):
         ]
         points.extend(pts)
     # 递归
-    next_points = minkowski_generator(np.array(points + [u[-1]]), level - 1)
-    return next_points
+    next_points = minkowski_generator(np.array(points), level - 1)
+    # 递归后补上终点
+    return np.concatenate([next_points, [u[-1]]])
 
 if __name__ == "__main__":
     # 初始线段
