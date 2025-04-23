@@ -8,17 +8,15 @@ def koch_generator(u, level):
     for i in range(len(u) - 1):
         p1 = u[i]
         p2 = u[i + 1]
-        # 三等分点
         a = p1 + (p2 - p1) / 3
         b = p1 + (p2 - p1) * 2 / 3
-        # 构造顶点
         angle = np.pi / 3
         c = a + (b - a) * np.exp(1j * angle)
-        # 注意：每段只添加p1，a，c，b，最后整体append u[-1]
+        # 只添加p1, a, c, b（不加p2，避免重复），递归后最后再加u[-1]
         points.extend([p1, a, c, b])
-    points.append(u[-1])
     # 递归
-    return koch_generator(np.array(points), level - 1)
+    next_points = koch_generator(np.array(points + [u[-1]]), level - 1)
+    return next_points
 
 def minkowski_generator(u, level):
     if level == 0:
@@ -28,7 +26,7 @@ def minkowski_generator(u, level):
         p1 = u[i]
         p2 = u[i + 1]
         v = (p2 - p1) / 4
-        # 闵可夫斯基香肠的8个分段
+        # 8个分段，最后不加p2，递归后最后再加u[-1]
         pts = [
             p1,
             p1 + v,
@@ -40,9 +38,9 @@ def minkowski_generator(u, level):
             p1 + 3 * v,
         ]
         points.extend(pts)
-    points.append(u[-1])
     # 递归
-    return minkowski_generator(np.array(points), level - 1)
+    next_points = minkowski_generator(np.array(points + [u[-1]]), level - 1)
+    return next_points
 
 if __name__ == "__main__":
     # 初始线段
