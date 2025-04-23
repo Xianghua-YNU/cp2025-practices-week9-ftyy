@@ -2,17 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def koch_generator(u, level):
-    """
-    递归/迭代生成科赫曲线的点序列。
-
-    参数:
-        u: 初始线段的端点数组（复数表示）
-        level: 迭代层数
-
-    返回:
-        numpy.ndarray: 生成的所有点（复数数组）
-    """
-    # TODO: 实现科赫曲线生成算法
     if level == 0:
         return u
     points = []
@@ -30,17 +19,6 @@ def koch_generator(u, level):
     return koch_generator(np.array(points), level - 1)
 
 def minkowski_generator(u, level):
-    """
-    递归/迭代生成闵可夫斯基香肠曲线的点序列。
-
-    参数:
-        u: 初始线段的端点数组（复数表示）
-        level: 迭代层数
-
-    返回:
-        numpy.ndarray: 生成的所有点（复数数组）
-    """
-    # TODO: 实现闵可夫斯基香肠曲线生成算法
     if level == 0:
         return u
     points = []
@@ -65,7 +43,7 @@ def minkowski_generator(u, level):
 
 if __name__ == "__main__":
      # 初始线段
-    init_u = np.array([0, 1])
+    init_u = np.array([0, 1, 0.5+0.866j, 0])  # 等边三角形
 
     # 绘制不同层级的科赫曲线
     fig, axs = plt.subplots(2, 2, figsize=(6, 6))
