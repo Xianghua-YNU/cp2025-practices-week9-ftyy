@@ -2,30 +2,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def koch_generator(u, level):
-    u = np.array([0, 1j]) # 初始竖直线段
-    
     if level <= 0:
         return u
         
     theta = np.pi/3 # 旋转角度
     for _ in range(level):
-        new_u = []
+        points = []
         for i in range(len(u)-1):
             start = u[i]
             end = u[i+1]
             
             # 生成科赫曲线的四个新线段
-            p1 = start
-            p2 = start + (end - start)/3
-            p3 = p2 + (end - start)/3 * np.exp(1j*theta)
-            p4 = start + 2*(end - start)/3
-            p5 = end
+            p1 = u[i]
+            p2 = u[i + 1]
+            a = p1 + (p2 - p1) / 3
+            b = p1 + (p2 - p1) * 2 / 3
+            angle = np.pi / 3
+            c = a + (b - a) * np.exp(1j * angle)
             
-            new_u.extend([p1, p2, p3, p4, p5])
+            points.extend([p1, a,c,b,p2])
         
-        u = np.array(new_u)
+        u = np.array(points)
     
-    return u
+    return np.array(u)
 
 def minkowski_generator(u, level):
     u = np.array([0, 1]) # 初始水平线段
@@ -34,22 +33,23 @@ def minkowski_generator(u, level):
     for _ in range(level):
         new_u = []
         for i in range(len(u)-1):
-            start = u[i]
-            end = u[i+1]
+            p1 = u[i]
+            p2 = u[i + 1]
+            v = (p2 - p1) / 4
             
             # 生成Minkowski曲线的八个新线段
-            p1 = start
-            p2 = start + (end - start)/4
-            p3 = p2 + (end - start)/4 * np.exp(1j*theta)
-            p4 = p2 + (end - start)/4 * (1 + 1j)
-            p5 = start + (end - start)/2 + (end - start)/4 * 1j
-            p6 = start + (end - start)/2
-            p7 = start + (end - start)/2 - (end - start)/4 * 1j
-            p8 = start + 3*(end - start)/4 - (end - start)/4 * 1j
-            p9 = start + 3*(end - start)/4
-            p10 = end
-            
-            new_u.extend([p1, p2, p3, p4, p5, p6, p7, p8, p9, p10])
+            pts = [
+                p1,
+                p1 + v,
+                p1 + v + v * 1j,
+                p1 + 2 * v + v * 1j,
+                p1 + 2 * v,
+                p1 + 2 * v - v * 1j,
+                p1 + 3 * v - v * 1j,
+                p1 + 3 * v,
+                p2,
+            ]
+            new_u.extend(pts)
         
         u = np.array(new_u)
     
