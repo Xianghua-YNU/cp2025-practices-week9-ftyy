@@ -14,8 +14,10 @@ def koch_generator(u, level):
         # 构造顶点
         angle = np.pi / 3
         c = a + (b - a) * np.exp(1j * angle)
+        # 注意：每段只添加p1，a，c，b，最后整体append u[-1]
         points.extend([p1, a, c, b])
     points.append(u[-1])
+    # 递归
     return koch_generator(np.array(points), level - 1)
 
 def minkowski_generator(u, level):
@@ -39,10 +41,11 @@ def minkowski_generator(u, level):
         ]
         points.extend(pts)
     points.append(u[-1])
+    # 递归
     return minkowski_generator(np.array(points), level - 1)
 
 if __name__ == "__main__":
-     # 初始线段
+    # 初始线段
     init_u = np.array([0, 1, 0.5+0.866j, 0])  # 等边三角形
 
     # 绘制不同层级的科赫曲线
