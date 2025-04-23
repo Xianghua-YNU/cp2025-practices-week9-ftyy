@@ -29,8 +29,10 @@ def load_and_binarize_image(image_path, threshold=128):
     3. 根据阈值进行二值化处理
     """
     # TODO: 实现图像加载和二值化
-    # ... your code here ...
-    pass
+    image = Image.open(image_path).convert("L")  # 转为灰度图
+    image_array = np.array(image)
+    binary_image = (image_array < threshold).astype(np.uint8)  # 前景为1，背景为0
+    return binary_image
 
 def box_count(binary_image, box_sizes):
     """
@@ -51,8 +53,20 @@ def box_count(binary_image, box_sizes):
        c. 统计包含前景像素的盒子数量
     """
     # TODO: 实现盒计数算法
-    # ... your code here ...
-    pass
+    height, width = binary_image.shape
+    counts = {}
+
+    for size in box_sizes:
+        count = 0
+        for i in range(0, height, size):
+            for j in range(0, width, size):
+                patch = binary_image[i:i+size, j:j+size]
+                if np.any(patch):  # 如果 patch 中有前景像素
+                    count += 1
+        counts[size] = count
+
+    return counts
+
 
 def calculate_fractal_dimension(binary_image, min_box_size=1, max_box_size=None, num_sizes=10):
     """
@@ -74,8 +88,32 @@ def calculate_fractal_dimension(binary_image, min_box_size=1, max_box_size=None,
     4. 使用线性回归计算斜率
     """
     # TODO: 实现分形维数计算
-    # ... your code here ...
-    pass
+    height, width = binary_image.shape
+    if max_box_size is None:
+        max_box_size = min(height, width) // 2
+
+    box_sizes = [2**i for i in range(int(np.log2(max_box_size)), int(np.log2(min_box_size)) - 1, -1)]
+    counts = box_count(binary_image, box_sizes)
+
+    # 只保留计数大于0的盒子尺寸
+    epsilons = []
+    N_epsilons = []
+    for k in box_sizes:
+        v = counts.get(k, 0)
+        if v > 0:
+            epsilons.append(k)
+            N_epsilons.append(v)
+    epsilons = np.array(epsilons)
+    N_epsilons = np.array(N_epsilons)
+
+    log_eps = np.log(epsilons)
+    log_N = np.log(N_epsilons)
+
+    # 线性回归
+    slope, intercept = np.polyfit(log_eps, log_N, 1)
+    D = -slope
+
+    return D, (epsilons, N_epsilons, slope, intercept)
 
 def plot_log_log(epsilons, N_epsilons, slope, intercept, save_path=None):
     """
@@ -95,8 +133,29 @@ def plot_log_log(epsilons, N_epsilons, slope, intercept, save_path=None):
     4. 添加标签和图例
     """
     # TODO: 实现log-log图绘制
-    # ... your code here ...
-    pass
+    mask = N_epsilons > 0
+    epsilons = np.array(epsilons)[mask].astype(float)
+    N_epsilons = np.array(N_epsilons)[mask].astype(float)
+    log_eps = np.log(epsilons)
+    log_N = np.log(N_epsilons)
+    slope = float(slope)
+    intercept = float(intercept)
+
+    plt.figure(figsize=(6, 4))
+    plt.scatter(log_eps, log_N, label="Data points", color="blue")
+    plt.plot(log_eps, slope * log_eps + intercept, 'r--', label=f"Fit line (slope = {slope:.4f})")
+
+    plt.xlabel("log(ε)")
+    plt.ylabel("log N(ε)")
+    plt.title("log-log Plot for Box Counting")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path)
+    else:
+        plt.show()
 
 if __name__ == "__main__":
     """
@@ -113,17 +172,17 @@ if __name__ == "__main__":
     2. 比较计算结果与理论值
     """
     # TODO: 实现主函数测试
-    # 示例路径，请根据实际情况修改
-    IMAGE_PATH = "../../images/barnsley_fern.png"  
+    IMAGE_PATH = "./images/barnsley_fern.png"  
     
     # 1. 加载并二值化图像
-    # binary_img = load_and_binarize_image(IMAGE_PATH)
-    
+    binary_img = load_and_binarize_image(IMAGE_PATH)
+
     # 2. 计算分形维数
-    # D, results = calculate_fractal_dimension(binary_img)
+    D, results = calculate_fractal_dimension(binary_img)
     
     # 3. 输出结果
-    # print(f"估算的盒维数 D = {D:.5f}")
+    print(f"估算的盒维数 D = {D:.5f}")
     
     # 4. 绘制log-log图
-    # plot_log_log(*results[1:], "log_log_plot.png")
+    # 正确传参，results 已经是 (epsilons, N_epsilons, slope, intercept)
+    plot_log_log(*results, save_path="log_log_plot.png")
